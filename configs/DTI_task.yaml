@@ -1,0 +1,38 @@
+DRUG:
+    NODE_IN_FEATS: 75
+    PADDING: True
+    LAYERS: 1
+    NUM_HEAD: 8
+    HIDDEN_LAYERS: [512, 512, 512]
+    NODE_IN_EMBEDDING: 512
+    MAX_NODES: 290
+
+STCDTI:
+    EMBEDDING_DIM: 512
+
+HRNN:
+    PN: 40
+    QN: 25
+    OUT_DIM: 512
+
+DECODER:
+    NAME: MLP
+    IN_DIM: 1024
+    HIDDEN_DIM: 2048
+    OUT_DIM: 256
+    BINARY: 1
+
+SOLVER:
+    MAX_EPOCH: 1
+    BATCH_SIZE: 64
+    NUM_WORKERS: 4
+    LR: 1.0e-4
+    USE_LD: True
+    LR_DECAY: 0.5
+    DECAY_INTERVAL: 20
+    WEIGHT_DECAY: 1.0e-5
+    SEED: 0
+
+RESULT:
+    OUTPUT_DIR: ./output/
+    SAVE_MODEL: True

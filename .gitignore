@@ -1,0 +1,6 @@
+*.sh
+scratch
+scratch/**
+.vscode
+__pycache__
+output

@@ -29,7 +29,7 @@ task:
     mask_modeling: True
   text_model:
     class: PubMedBERT
-    model_path: /home/lishuang/graduation-design/models/BiomedNLP-BiomedBERT-base-uncased-abstract/
+    model_path: {{ blm }}
     output_dim: 512 # NOTE: same as the output_dim of protein_model
     readout: mean
   fusion_model:
@@ -51,8 +51,8 @@ optimizer:
   lr: 1.0e-4
 
 engine:
-  gpus: [0]
-  batch_size: 4
+  gpus: [6]
+  batch_size: 32
 
 train: 
   num_epoch: 20

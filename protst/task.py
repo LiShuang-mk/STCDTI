@@ -14,7 +14,7 @@ from torchdrug.layers import functional
 from torchdrug.core import Registry as R
 from torchdrug.utils import comm
 
-from protst import model
+from protst import model, data
 
 
 @R.register("tasks.ProtST")
@@ -35,7 +35,7 @@ class ProtST(tasks.Task, core.Configurable):
 
         if mlm_weight > 0:
             self.mlm_head = layers.MLP(protein_model.output_dim,
-                                       [protein_model.output_dim] * (num_mlp_layer - 1) + [constant.NUM_AMINO_ACID])
+                                       [protein_model.output_dim] * (num_mlp_layer - 1) + [len(data.Protein.id2residue_symbol) - 1])
 
     def mask_protein(self, graph):
         num_samples = (graph.num_residues * self.mask_rate).long().clamp(1)
@@ -68,10 +68,14 @@ class ProtST(tasks.Task, core.Configurable):
 
         if self.global_contrast:
             local_batch_size = protein_feature.shape[0]
-            all_protein_feature = all_gather_with_backprop(protein_feature)
-            all_protein_feature = torch.cat(all_protein_feature, dim=0)
-            all_text_feature = all_gather_with_backprop(text_feature)
-            all_text_feature = torch.cat(all_text_feature, dim=0)
+            if protein_feature.device == torch.device('cpu'):
+                all_protein_feature = protein_feature
+                all_text_feature = text_feature
+            else:
+                all_protein_feature = all_gather_with_backprop(protein_feature)
+                all_protein_feature = torch.cat(all_protein_feature, dim=0)
+                all_text_feature = all_gather_with_backprop(text_feature)
+                all_text_feature = torch.cat(all_text_feature, dim=0)
             pred_protein2text = logit_scale * protein_feature @ all_text_feature.t()
             pred_text2protein = logit_scale * text_feature @ all_protein_feature.t()
             target_protein2text = local_batch_size * comm.get_rank() + torch.arange(
@@ -166,7 +170,7 @@ class ProtSTMMP(ProtST):
 
         if mmp_weight > 0:
             self.mmp_protein_head = layers.MLP(fusion_model.hidden_dim, [fusion_model.hidden_dim]
-                                               * (num_mlp_layer - 1) + [constant.NUM_AMINO_ACID])
+                                               * (num_mlp_layer - 1) + [len(data.Protein.id2residue_symbol) - 1])
             self.mmp_text_head = layers.MLP(fusion_model.hidden_dim, [fusion_model.hidden_dim]
                                             * (num_mlp_layer - 1) + [text_model.tokenizer.vocab_size])
 

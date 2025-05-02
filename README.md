@@ -217,7 +217,8 @@ python run_pretrain.py \
     -c configs/pretrain_hrnn.yaml \
     --seed 2025 \
     --save_step 10 \
-    --dataset_path /path/to/dataset.tsv
+    --dataset_path /path/to/dataset.tsv \
+    --blm microsoft/BiomedNLP-PubMedBERT-base-uncased-abstract # 你可以更改为本地路径来使用本地的文本嵌入模型
 ```
 
 ## 下游DTI预测微调
